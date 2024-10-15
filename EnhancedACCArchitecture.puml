@@ -1,0 +1,61 @@
+@startuml RefinedACCArchitecture
+
+skinparam linetype ortho
+skinparam ranksep 100
+skinparam nodesep 60
+
+package "Driver" {
+    rectangle "Driver" as driver {
+        [Set Target Speed]
+    }
+}
+
+package "Sensors" {
+    rectangle "Sensor System" as sensors {
+        [Radar]
+        [Camera]
+    }
+}
+
+package "Target Selection" {
+    rectangle "Target Selection" as ts {
+        [Define Primary Target]
+    }
+}
+
+package "Cruise Control" {
+    rectangle "CruiseControl" as cc {
+        [PID Controller]
+    }
+}
+
+package "Vehicle System" {
+    rectangle "Car" as car {
+        [Throttle Control]
+        [Speed Sensor]
+        [Brake Control]
+    }
+}
+
+package "User Interface" {
+    rectangle "Dashboard Display" as dash {
+        [Speed Display]
+        [ACC Status]
+    }
+}
+
+' Connections
+
+driver --> cc : Set Target Speed
+sensors --> ts : Sensor Data
+ts --> cc : Target Speed & Position
+cc --> car : Throttle/Brake Command
+car --> cc : Current Speed Feedback
+car --> dash : Speed Data
+
+' Notes
+note right of cc : PID Controller adjusts throttle\nbased on speed error
+note bottom of car : Speed Sensor provides\nfeedback to Cruise Control
+note right of ts : Target Selection Module uses data\nfrom sensors to determine\ntarget speed and position
+
+@enduml
