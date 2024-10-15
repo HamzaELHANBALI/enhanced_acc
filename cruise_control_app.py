@@ -10,6 +10,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import time
 from car import Car
+from sensors import Sensors
 
 class CruiseControlApp(ctk.CTk):
     def __init__(self):
@@ -18,6 +19,9 @@ class CruiseControlApp(ctk.CTk):
         # Set up the main window
         self.title("Cruise Control Simulation")
         self.geometry("1200x900")
+
+        # Get the target object speed and position from the sensor module
+        self.target_object = Sensors()
 
         # Initialize car and simulation variables
         self.car = Car(target_speed=60)
@@ -39,14 +43,22 @@ class CruiseControlApp(ctk.CTk):
         target_speed_frame = ctk.CTkFrame(self)
         target_speed_frame.pack(pady=10)
 
-        self.set_minus_button = ctk.CTkButton(target_speed_frame, text="Set-", command=self.decrease_target_speed, width=60)
+        self.set_minus_button = ctk.CTkButton(target_speed_frame, text="Set-", command=self.decrease_set_speed, width=60)
         self.set_minus_button.pack(side=ctk.LEFT, padx=5)
 
         self.target_speed_label = ctk.CTkLabel(target_speed_frame, text="Target Speed: 60 kph", width=150)
         self.target_speed_label.pack(side=ctk.LEFT, padx=5)
 
-        self.set_plus_button = ctk.CTkButton(target_speed_frame, text="Set+", command=self.increase_target_speed, width=60)
+        self.set_plus_button = ctk.CTkButton(target_speed_frame, text="Set+", command=self.increase_set_speed, width=60)
         self.set_plus_button.pack(side=ctk.LEFT, padx=5)
+
+        # Create a button to manually set the speed (always suppose target is on ego vehicle's lane)
+        self.set_speed_button = ctk.CTkButton(self, text="Set TargetObject Speed", command=self.set_target_object_speed)
+        self.set_speed_button.pack(pady=10)
+
+        # Create a button to manually set the target longitudinal position (in meters)
+        self.set_position_button = ctk.CTkButton(self, text="Set TargetObject Position", command=self.set_target_object_position)
+        self.set_position_button.pack(pady=10)
 
         # Create Start/Stop button
         self.toggle_button = ctk.CTkButton(self, text="Start", command=self.toggle_simulation)
@@ -70,14 +82,18 @@ class CruiseControlApp(ctk.CTk):
 
         self.running = False
 
-    def increase_target_speed(self):
+    def target_speed_management(self):
+        # Set target speed to the minimum of the driver's set speed and the target object speed (always regulate to the lowest speed)
+        self.car.target_speed = min(self.car.set_speed, self.target_object.TargetObjectSpeed)
+
+    def increase_set_speed(self):
         # Increase target speed by 1, up to a maximum of 130 kph
-        self.car.target_speed = min(130, self.car.target_speed + 1)
+        self.car.set_speed = min(130, self.car.set_speed + 1)
         self.update_target_speed_label()
 
-    def decrease_target_speed(self):
+    def decrease_set_speed(self):
         # Decrease target speed by 1, down to a minimum of 0 kph
-        self.car.target_speed = max(0, self.car.target_speed - 1)
+        self.car.set_speed = max(0, self.car.set_speed - 1)
         self.update_target_speed_label()
 
     def update_target_speed_label(self):
