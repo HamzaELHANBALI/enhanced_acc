@@ -42,7 +42,6 @@ class Car:
     def update_speed(self, time_step):
 
         # TODO: Obj must be within a distance to be considered ahead and consider its speed
-
         # Compute the safe distance
         d_safe = self.compute_safe_distance()
         d_error = self.sensor_data.d_object - d_safe
@@ -50,12 +49,12 @@ class Car:
         # Fix the target speed logic
         if d_error < 0:
             # If d_error is negative, slow down (reduce target speed)
-            s_target_desired = self.sensor_data.s_object - 1.5
+            s_target_desired = self.sensor_data.s_object - 2
         else:
             s_target_desired = min(self.set_speed, self.sensor_data.s_object)
 
         # Implement rate limiter for s_target_desired
-        max_change = 1.5  # Maximum change allowed in m/s
+        max_change = 2  # Maximum change allowed in m/s
         previous_target = getattr(self, 'previous_target', self.current_speed)
         
         # Convert speeds from kph to m/s for calculation
@@ -114,31 +113,49 @@ class CruiseControlApp(ctk.CTk):
         self.running = False
 
     def create_widgets(self):
+        # Create a frame for control inputs
+        control_frame = ctk.CTkFrame(self)
+        control_frame.pack(pady=10, padx=10, fill="x")
+
+        # Set Initial Speed
+        initial_speed_label = ctk.CTkLabel(control_frame, text="Initial Speed (kph):")
+        initial_speed_label.grid(row=0, column=0, padx=5, pady=5)
+        self.initial_speed_entry = ctk.CTkEntry(control_frame)
+        self.initial_speed_entry.grid(row=0, column=1, padx=5, pady=5)
+        self.initial_speed_button = ctk.CTkButton(control_frame, text="Set Initial Speed", command=self.set_initial_speed)
+        self.initial_speed_button.grid(row=0, column=2, padx=5, pady=5)
+
+        # Set Speed
+        set_speed_label = ctk.CTkLabel(control_frame, text="Set Speed (kph):")
+        set_speed_label.grid(row=1, column=0, padx=5, pady=5)
+        self.set_speed_entry = ctk.CTkEntry(control_frame)
+        self.set_speed_entry.grid(row=1, column=1, padx=5, pady=5)
+        self.set_speed_button = ctk.CTkButton(control_frame, text="Set Speed", command=self.set_speed)
+        self.set_speed_button.grid(row=1, column=2, padx=5, pady=5)
+
+        # Set Object Speed
+        object_speed_label = ctk.CTkLabel(control_frame, text="Object Speed (kph):")
+        object_speed_label.grid(row=2, column=0, padx=5, pady=5)
+        self.object_speed_entry = ctk.CTkEntry(control_frame)
+        self.object_speed_entry.grid(row=2, column=1, padx=5, pady=5)
+        self.object_speed_button = ctk.CTkButton(control_frame, text="Set Object Speed", command=self.set_object_speed)
+        self.object_speed_button.grid(row=2, column=2, padx=5, pady=5)
+
+        # Set Object Distance
+        object_distance_label = ctk.CTkLabel(control_frame, text="Object Distance (m):")
+        object_distance_label.grid(row=3, column=0, padx=5, pady=5)
+        self.object_distance_entry = ctk.CTkEntry(control_frame)
+        self.object_distance_entry.grid(row=3, column=1, padx=5, pady=5)
+        self.object_distance_button = ctk.CTkButton(control_frame, text="Set Object Distance", command=self.set_object_distance)
+        self.object_distance_button.grid(row=3, column=2, padx=5, pady=5)
+
+        # Start/Stop button
+        self.toggle_button = ctk.CTkButton(control_frame, text="Start", command=self.toggle_simulation)
+        self.toggle_button.grid(row=4, column=1, padx=5, pady=10)
+
         # Create Speed Label
         self.speed_label = ctk.CTkLabel(self, text="Current Speed: 0 kph", font=("Arial", 24))
         self.speed_label.pack(pady=10)
-
-        # Start/Stop button
-        self.toggle_button = ctk.CTkButton(self, text="Start", command=self.toggle_simulation)
-        self.toggle_button.pack(pady=10)
-
-        # Set Speed Button and Entry
-        self.set_speed_entry = ctk.CTkEntry(self, placeholder_text="Set Speed (kph)")
-        self.set_speed_entry.pack(pady=5)
-        self.set_speed_button = ctk.CTkButton(self, text="Set Speed", command=self.set_speed)
-        self.set_speed_button.pack(pady=5)
-
-        # Adjust Object Speed Button and Entry
-        self.object_speed_entry = ctk.CTkEntry(self, placeholder_text="Object Speed (kph)")
-        self.object_speed_entry.pack(pady=5)
-        self.object_speed_button = ctk.CTkButton(self, text="Set Object Speed", command=self.set_object_speed)
-        self.object_speed_button.pack(pady=5)
-
-        # Adjust Object Distance Button and Entry
-        self.object_distance_entry = ctk.CTkEntry(self, placeholder_text="Object Distance (m)")
-        self.object_distance_entry.pack(pady=5)
-        self.object_distance_button = ctk.CTkButton(self, text="Set Object Distance", command=self.set_object_distance)
-        self.object_distance_button.pack(pady=5)
 
         # Set up Matplotlib figure and canvas
         self.figure, (self.ax_speed, self.ax_distance) = plt.subplots(2, 1, figsize=(7, 6))
@@ -239,6 +256,13 @@ class CruiseControlApp(ctk.CTk):
             self.car.sensor_data.d_object = distance
         except ValueError:
             print("Invalid object distance value")
+
+    def set_initial_speed(self):
+        try:
+            initial_speed = float(self.initial_speed_entry.get())
+            self.car.current_speed = initial_speed
+        except ValueError:
+            print("Invalid initial speed value")
 
 # Run the application
 if __name__ == "__main__":
