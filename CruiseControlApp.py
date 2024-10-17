@@ -1,3 +1,10 @@
+"""
+This file contains the CruiseControlApp which is the main application that runs the simulation and the GUI.
+
+Author: Hamza El Hanbali
+Date: 2024-07-28
+"""
+
 import customtkinter as ctk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt

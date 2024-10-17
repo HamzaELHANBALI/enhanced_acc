@@ -1,3 +1,11 @@
+"""
+This file contains the Car class which is used to control the car's speed and distance.
+It uses a PID controller to adjust the speed based on the target speed and a safe distance from the object ahead.
+
+Author: Hamza El Hanbali
+Date: 2024-07-28
+"""
+
 from PIDController import PIDController
 from Sensor import Sensors
 

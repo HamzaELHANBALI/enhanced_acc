@@ -1,3 +1,10 @@
+"""
+This file contains the PIDController class which is used to determine the throttle/brake of the car based on the error between the current speed and the target speed.
+
+Author: Hamza El Hanbali
+Date: 2024-07-28
+"""
+
 class PIDController:
     def __init__(self, kp, ki, kd):
         self.kp = kp
