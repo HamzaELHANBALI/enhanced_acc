@@ -121,6 +121,7 @@ class CruiseControlApp(ctk.CTk):
         if self.running:
             current_time = time.time() - self.start_time
             current_speed, target_speed, d_safe = self.car.update_speed(self.time_step)
+            self.speed_label.configure(text=f"Current Speed: {current_speed:.2f} kph")
 
             self.time_history.append(current_time)
             self.speed_history.append(current_speed)
